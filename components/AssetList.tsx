@@ -6,6 +6,7 @@ import { fetchCryptoAssets } from '../lib/api';
 import { CryptoAsset } from '../lib/types';
 import { formatCurrency, formatPercentage, getChangeColor } from '../lib/utils';
 import { AssetCard } from './ui/AssetCard';
+import { AlertList } from './AlertList';
 
 export function AssetList() {
   const [assets, setAssets] = useState<CryptoAsset[]>([]);
@@ -76,16 +77,20 @@ export function AssetList() {
         ))}
       </div>
 
-      {/* Asset List */}
-      <div className="space-y-3">
-        {assets.map((asset) => (
-          <AssetCard
-            key={asset.id}
-            asset={asset}
-            variant="withChart"
-          />
-        ))}
-      </div>
+      {/* Content based on active tab */}
+      {activeTab === 'alerts' ? (
+        <AlertList userId="demo_user_123" />
+      ) : (
+        <div className="space-y-3">
+          {assets.map((asset) => (
+            <AssetCard
+              key={asset.id}
+              asset={asset}
+              variant="withChart"
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

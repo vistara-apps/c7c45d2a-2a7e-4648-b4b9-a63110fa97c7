@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TrendingUp, Eye, Plus } from 'lucide-react';
+import { TrendingUp, Eye, Plus, Wallet } from 'lucide-react';
 import { formatCompactCurrency } from '../lib/utils';
 import { PrimaryButton } from './ui/PrimaryButton';
+import { fetchPortfolioAssets, getWalletInfo, PortfolioAsset } from '../lib/wallet';
 
 interface PortfolioData {
   totalValue: number;
@@ -15,14 +16,84 @@ interface PortfolioData {
 
 export function PortfolioSummary() {
   const [portfolio, setPortfolio] = useState<PortfolioData>({
-    totalValue: 166900,
-    change24h: 1500,
-    changePercent24h: 2.4,
+    totalValue: 0,
+    change24h: 0,
+    changePercent24h: 0,
     recommendedValue: 99700,
     recommendedChange: 4800,
   });
 
   const [showBalance, setShowBalance] = useState(true);
+  const [assets, setAssets] = useState<PortfolioAsset[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+
+  useEffect(() => {
+    const loadPortfolio = async () => {
+      const walletInfo = getWalletInfo();
+      setIsWalletConnected(!!walletInfo);
+
+      if (walletInfo) {
+        try {
+          const portfolioAssets = await fetchPortfolioAssets();
+          setAssets(portfolioAssets);
+
+          // Calculate total portfolio value and 24h change
+          const totalValue = portfolioAssets.reduce((sum, asset) => sum + asset.value, 0);
+          const totalChange24h = portfolioAssets.reduce((sum, asset) => sum + asset.change24h, 0);
+          const totalChangePercent24h = totalValue > 0 ? (totalChange24h / (totalValue - totalChange24h)) * 100 : 0;
+
+          setPortfolio(prev => ({
+            ...prev,
+            totalValue,
+            change24h: totalChange24h,
+            changePercent24h: totalChangePercent24h,
+          }));
+        } catch (error) {
+          console.error('Error loading portfolio:', error);
+        }
+      }
+      setLoading(false);
+    };
+
+    loadPortfolio();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-card rounded-lg p-4 animate-pulse">
+          <div className="h-4 bg-muted rounded w-20 mb-2"></div>
+          <div className="h-8 bg-muted rounded w-32 mb-4"></div>
+          <div className="h-6 bg-muted rounded w-24"></div>
+        </div>
+        <div className="bg-card rounded-lg p-4 animate-pulse">
+          <div className="h-4 bg-muted rounded w-24 mb-2"></div>
+          <div className="h-6 bg-muted rounded w-28"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isWalletConnected) {
+    return (
+      <div className="space-y-4">
+        {/* Wallet Connection Prompt */}
+        <div className="bg-card rounded-lg p-4 text-center">
+          <Wallet className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-card-foreground mb-2">
+            Connect Your Wallet
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Connect your wallet to view your portfolio and start tracking your crypto investments.
+          </p>
+          <PrimaryButton className="w-full">
+            Connect Wallet
+          </PrimaryButton>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -38,17 +109,19 @@ export function PortfolioSummary() {
               <Eye className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
-          <div className="flex items-center space-x-1 text-success">
-            <TrendingUp className="h-4 w-4" />
+          <div className={`flex items-center space-x-1 ${portfolio.changePercent24h >= 0 ? 'text-success' : 'text-danger'}`}>
+            <TrendingUp className={`h-4 w-4 ${portfolio.changePercent24h < 0 ? 'rotate-180' : ''}`} />
             <span className="text-sm font-medium">
-              +{portfolio.changePercent24h}%
+              {portfolio.changePercent24h >= 0 ? '+' : ''}{portfolio.changePercent24h.toFixed(2)}%
             </span>
           </div>
         </div>
-        
+
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Balance: $1.5M</p>
+            <p className="text-sm text-muted-foreground">
+              {assets.length} Assets • ${portfolio.totalValue.toLocaleString()}
+            </p>
             <p className="text-2xl font-bold text-card-foreground">
               {showBalance ? formatCompactCurrency(portfolio.totalValue) : '••••••'}
             </p>
