@@ -1,0 +1,30 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "frame": {
+    "version": "1",
+    "name": "CryptoPulse",
+    "subtitle": "Built with Zara",
+    "description": "CryptoPulse is a Base Mini App built with Zara.",
+    "iconUrl": "https://0co.to/images/zara-2.png",
+    "homeUrl": "https://c7c45d2a2a7e4648b4b9a63110fa97c7-4bav.vercel.app",
+    "splashImageUrl": "https://c7c45d2a2a7e4648b4b9a63110fa97c7-4bav.vercel.app/splash.png",
+    "splashBackgroundColor": "#000000",
+    "heroImageUrl": "https://c7c45d2a2a7e4648b4b9a63110fa97c7-4bav.vercel.app/image.png",
+    "tagline": "CryptoPulse",
+    "screenshotUrls": [
+      "https://c7c45d2a2a7e4648b4b9a63110fa97c7-4bav.vercel.app/screenshot.png",
+      "https://c7c45d2a2a7e4648b4b9a63110fa97c7-4bav.vercel.app/screenshot.png"
+    ],
+    "primaryCategory": "social",
+    "tags": [
+      "base",
+      "miniapp",
+      "onchainkit"
+    ],
+    "webhookUrl": "https://c7c45d2a2a7e4648b4b9a63110fa97c7-4bav.vercel.app/api/webhook"
+  }
+}
